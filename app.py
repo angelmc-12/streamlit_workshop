@@ -36,6 +36,14 @@ def load_model_state(model: torch.nn.Module, path: str | Path, map_location: tor
     model.load_state_dict(state)
     return model
 
+def _to_28x28_grayscale(img: Image.Image) -> Image.Image:
+    """
+    Ensures a 28x28 grayscale image (MNIST-like).
+    """
+    img = img.convert("L")               # grayscale
+    img = img.resize((28, 28))           # simple resize (ok for demo)
+    return img
+
 def preprocess_pil(img: Image.Image) -> torch.Tensor:
     """
     Converts PIL to torch tensor shaped [1,1,28,28] with values in [0,1].
