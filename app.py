@@ -69,7 +69,7 @@ def preprocess_pil(pil_img: Image.Image) -> torch.Tensor:
     - Devuelve tensor con forma [1, 1, 28, 28]
     """
     img = pil_img.convert("L").resize((28, 28))
-    arr = np.array(img).astype(np.float32) / 255.0
+    arr = np.array(img).astype(np.float32)# / 255.0
     return torch.from_numpy(arr).unsqueeze(0).unsqueeze(0)
 
 
