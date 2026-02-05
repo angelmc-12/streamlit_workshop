@@ -109,6 +109,11 @@ with left:
                 drawing_mode="freedraw",
                 key="canvas",
             )
+
+            if canvas.image_data is not None:
+                st.write("canvas dtype:", canvas.image_data.dtype,
+                         "min:", float(np.min(canvas.image_data)),
+                         "max:", float(np.max(canvas.image_data)))
             
             # 1) Detectar si hay trazos (lo más confiable)
             is_blank = True
@@ -127,18 +132,8 @@ with left:
                     is_blank = False
             
             if canvas.image_data is not None and not is_blank:
-                # img_arr = canvas.image_data.astype(np.uint8)
-                # pil_img = Image.fromarray(img_arr).convert("L")
-
                 img_arr = canvas.image_data.astype(np.uint8)
-                
-                rgba = Image.fromarray(img_arr, mode="RGBA")
-                
-                # fuerza fondo negro sólido (esto elimina diferencias entre local vs cloud)
-                bg = Image.new("RGBA", rgba.size, (0, 0, 0, 255))
-                rgba = Image.alpha_composite(bg, rgba)
-                
-                pil_img = rgba.convert("L")
+                pil_img = Image.fromarray(img_arr).convert("L")
             
             else:
                 pil_img = None
