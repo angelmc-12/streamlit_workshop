@@ -180,14 +180,6 @@ with left:
         else:
             st.info("👆 Dibuja un número en el canvas para predecir.")
 
-        # Debug opcional (déjalo en False cuando publiques)
-        DEBUG_CANVAS = False
-        if DEBUG_CANVAS and canvas.image_data is not None:
-            st.write(
-                "canvas dtype:", canvas.image_data.dtype,
-                "min:", float(np.min(canvas.image_data)),
-                "max:", float(np.max(canvas.image_data)),
-            )
 
     else:
         uploaded = st.file_uploader(
