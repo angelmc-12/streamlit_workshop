@@ -116,11 +116,29 @@ with left:
                 drawing_mode="freedraw",
                 key="canvas",
             )
-
-            if canvas.image_data is not None:
-                # image_data viene como RGBA (alto, ancho, 4)
+            
+            # 1) Detectar si hay trazos (lo más confiable)
+            is_blank = True
+            if canvas.json_data is not None:
+                objects = canvas.json_data.get("objects", [])
+                is_blank = (len(objects) == 0)
+            
+            # 2) Fallback simple: contar "tinta" (píxeles claros)
+            # (por si json_data no viene o viene raro)
+            if canvas.image_data is not None and is_blank:
+                arr_rgba = canvas.image_data.astype(np.uint8)
+                gray = Image.fromarray(arr_rgba).convert("L")
+                arr = np.array(gray)
+                ink = (arr > 20).sum()   # píxeles claros (el trazo es blanco)
+                if ink > 80:             # umbral mínimo de tinta
+                    is_blank = False
+            
+            if canvas.image_data is not None and not is_blank:
                 img_arr = canvas.image_data.astype(np.uint8)
                 pil_img = Image.fromarray(img_arr).convert("L")
+            else:
+                pil_img = None
+                st.info("👆 Dibuja un número en el canvas para predecir.")
 
     else:
         uploaded = st.file_uploader(
