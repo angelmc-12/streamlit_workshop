@@ -50,7 +50,7 @@ def preprocess_pil(pil_img: Image.Image) -> torch.Tensor:
     return torch.from_numpy(arr).unsqueeze(0).unsqueeze(0)
 
 
-@st.cache_resource
+# @st.cache_resource
 def load_trained_model(weights_path: str, out_1: int = 16, out_2: int = 32):
     """Carga el modelo y los pesos. Cacheado para que no cargue en cada interacción."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
