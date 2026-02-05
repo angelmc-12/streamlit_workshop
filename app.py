@@ -197,10 +197,10 @@ with left:
         if uploaded is not None:
             pil_img = Image.open(uploaded).convert("L")
 
-    # Vista previa
-    if pil_img is not None:
-        st.write("Vista previa (antes de 28×28):")
-        st.image(pil_img, use_container_width=True)
+    # # Vista previa
+    # if pil_img is not None:
+    #     st.write("Vista previa (antes de 28×28):")
+    #     st.image(pil_img, use_container_width=True)
 
 
 # ----------------------------
