@@ -30,6 +30,9 @@ with left:
             key="canvas",
         )
 
+        img_arr = canvas.image_data.astype(np.uint8)
+        pil_img = Image.fromarray(img_arr).convert("L")
+
     
     else:
         uploaded = st.file_uploader("Sube una imagen con un dígito (ideal fondo negro, dígito blanco)", type=["png", "jpg", "jpeg"])
