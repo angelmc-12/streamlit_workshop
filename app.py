@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_drawable_canvas import st_canvas
 
 st.set_page_config(page_title="MNIST Classifier (Techy)", layout="wide")
 
@@ -18,6 +19,18 @@ with left:
     if mode == "🖊️ Dibujar":
         st.write("Dibuja un dígito (0–9). Ideal: trazo grueso y centrado.")
 
+        canvas = st_canvas(
+            fill_color="black",
+            stroke_width=18,
+            stroke_color="white",
+            background_color="black",
+            height=280,
+            width=280,
+            drawing_mode="freedraw",
+            key="canvas",
+        )
+
+    
     else:
         uploaded = st.file_uploader("Sube una imagen con un dígito (ideal fondo negro, dígito blanco)", type=["png", "jpg", "jpeg"])
 
