@@ -165,13 +165,3 @@ with right:
 
         st.write("Probabilidades por clase:")
         st.bar_chart(probs)
-
-st.divider()
-st.subheader("📌 Tips para tus estudiantes")
-st.markdown(
-    """
-- Si el modelo falla, prueba con un dígito **centrado** y con trazos **gruesos**.
-- El slider de ruido te enseña **robustez**: un modelo no es magia.
-- Si el modo dibujo no aparece, revisa que `streamlit-drawable-canvas` esté en `requirements.txt`.
-"""
-)
