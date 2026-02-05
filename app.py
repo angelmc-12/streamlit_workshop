@@ -145,8 +145,8 @@ with left:
         pil_img = pil_img.convert("L")
 
         # invertimos si es necesario (heurística)
-        if np.mean(np.array(pil_img)) > 127:
-            pil_img = ImageOps.invert(pil_img)
+        # if np.mean(np.array(pil_img)) > 127:
+        #     pil_img = ImageOps.invert(pil_img)
 
         st.write("Vista previa (antes de 28×28):")
         st.image(pil_img, use_container_width=True)
