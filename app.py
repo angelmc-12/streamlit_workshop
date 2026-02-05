@@ -36,26 +36,15 @@ def load_model_state(model: torch.nn.Module, path: str | Path, map_location: tor
     model.load_state_dict(state)
     return model
 
-def preprocess_pil(pil_img: Image.Image) -> torch.Tensor:
+def preprocess_pil(img: Image.Image) -> torch.Tensor:
     """
-    Convierte una imagen PIL a un tensor [1,1,28,28] con valores en [0,1].
-    MNIST es: dígito blanco sobre fondo negro.
+    Converts PIL to torch tensor shaped [1,1,28,28] with values in [0,1].
     """
-    img = pil_img.convert("L")
-
-    # Si parece "fondo claro", invertimos
-    if np.mean(np.array(img)) > 127:
-        img = ImageOps.invert(img)
-
-    # Suavizado leve (ayuda con canvas)
-    img = img.filter(ImageFilter.GaussianBlur(radius=0.5))
-
-    # Resize a 28x28
-    img = img.resize((28, 28))
-
-    arr = np.array(img).astype(np.float32) / 255.0  # [28,28]
-    x = torch.from_numpy(arr).unsqueeze(0).unsqueeze(0)  # [1,1,28,28]
+    img = _to_28x28_grayscale(img)
+    arr = np.array(img).astype(np.float32) / 255.0
+    x = torch.tensor(arr).unsqueeze(0).unsqueeze(0)  # [1,1,28,28]
     return x
+
 
 @st.cache_resource
 def load_trained_model(weights_path: str, out_1: int = 16, out_2: int = 32):
