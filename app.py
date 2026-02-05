@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_drawable_canvas import st_canvas
 import numpy as np
-from PIL import Image
+from PIL import Image,ImageOps
 
 st.set_page_config(page_title="MNIST Classifier (Techy)", layout="wide")
 
@@ -38,6 +38,17 @@ with left:
     
     else:
         uploaded = st.file_uploader("Sube una imagen con un dígito (ideal fondo negro, dígito blanco)", type=["png", "jpg", "jpeg"])
+        if uploaded is not None:
+            pil_img = Image.open(uploaded)
+
+    if pil_img is not None:
+        pil_img = pil_img.convert("L")
+        if np.mean(np.array(pil_img)) > 127:
+            pil_img = ImageOps.invert(pil_img)
+            
+        st.write("Vista previa (antes de 28x28):")
+        st.image(pil_img, use_container_width=True)
+
 
 with right:
     st.subheader("2) Predicción")
