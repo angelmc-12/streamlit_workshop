@@ -209,6 +209,8 @@ with right:
         model, device = load_trained_model(str(WEIGHTS), out_1=16, out_2=32)
 
         x = preprocess_pil(pil_img)  # [1,1,28,28]
+        st.write("Debug x: mean=", float(x.mean()), "max=", float(x.max()), "sum=", float(x.sum()))
+
         pred, probs = predict(model, x, device)
 
         st.markdown(f"## ✅ Predicción: **{pred}**")
