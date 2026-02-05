@@ -2,6 +2,39 @@ import streamlit as st
 from streamlit_drawable_canvas import st_canvas
 import numpy as np
 from PIL import Image,ImageOps
+import torch
+import torch.nn as nn
+
+class CNN(nn.Module):
+
+    def __init__(self, out_1: int = 16, out_2: int = 32):
+        super().__init__()
+        self.cnn1 = nn.Conv2d(in_channels=1, out_channels=out_1, kernel_size=5, padding=2)
+        self.maxpool1 = nn.MaxPool2d(kernel_size=2)
+
+        self.cnn2 = nn.Conv2d(in_channels=out_1, out_channels=out_2, kernel_size=5, stride=1, padding=2)
+        self.maxpool2 = nn.MaxPool2d(kernel_size=2)
+
+        self.fc1 = nn.Linear(out_2 * 7 * 7, 10)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.cnn1(x)
+        x = torch.relu(x)
+        x = self.maxpool1(x)
+
+        x = self.cnn2(x)
+        x = torch.relu(x)
+        x = self.maxpool2(x)
+
+        x = x.view(x.size(0), -1)
+        x = self.fc1(x)
+        return x
+
+def load_model_state(model: torch.nn.Module, path: str | Path, map_location: torch.device) -> torch.nn.Module:
+    state = torch.load(path, map_location=map_location)
+    model.load_state_dict(state)
+    return model
+
 
 st.set_page_config(page_title="MNIST Classifier (Techy)", layout="wide")
 
