@@ -98,8 +98,6 @@ with left:
 
     mode = st.radio("Elige modo:", ["🖊️ Dibujar", "🖼️ Subir imagen"], horizontal=True)
 
-    noise_sigma = st.slider("Ruido (para probar robustez)", 0.0, 60.0, 0.0, 1.0)
-
     pil_img = None
 
     if mode == "🖊️ Dibujar":
