@@ -155,21 +155,22 @@ with left:
 with right:
     st.subheader("2) Predicción")
 
-    model, device = load_trained_model(str(WEIGHTS), out_1=16, out_2=32)
+    if pil_img is None:
+        st.info("Primero dibuja o sube una imagen.")
+    else:
+        model, device = load_trained_model(str(WEIGHTS), out_1=16, out_2=32)
 
-    x = preprocess_pil(pil_img)  # [1,1,28,28]
-    st.write("Debug x: mean=", float(x.mean()), "max=", float(x.max()), "sum=", float(x.sum()))
+        x = preprocess_pil(pil_img)
+        st.write("Debug x: mean=", float(x.mean()), "max=", float(x.max()), "sum=", float(x.sum()))
 
-    pred, probs = predict(model, x, device)
+        pred, probs = predict(model, x, device)
 
-    st.markdown(f"## ✅ Predicción: **{pred}**")
+        st.markdown(f"## ✅ Predicción: **{pred}**")
+        top3 = np.argsort(probs)[::-1][:3]
+        st.write("Top-3:", ", ".join([f"{i} ({probs[i]:.2%})" for i in top3]))
 
-    top3 = np.argsort(probs)[::-1][:3]
-    st.write("Top-3:", ", ".join([f"{i} ({probs[i]:.2%})" for i in top3]))
+        x_img = (x.squeeze(0).squeeze(0).cpu().numpy() * 255).astype(np.uint8)
+        st.image(x_img, clamp=True, width=220)
 
-    st.write("Input final 28×28 (lo que ve el modelo):")
-    x_img = (x.squeeze(0).squeeze(0).numpy() * 255).astype(np.uint8)
-    st.image(x_img, clamp=True, width=220)
-
-    st.write("Probabilidades por clase:")
-    st.bar_chart(probs)
+        st.write("Probabilidades por clase:")
+        st.bar_chart(probs)
