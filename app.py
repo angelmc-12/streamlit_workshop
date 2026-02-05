@@ -45,57 +45,9 @@ def _to_28x28_grayscale(img: Image.Image) -> Image.Image:
     return img
 
 def preprocess_pil(pil_img: Image.Image) -> torch.Tensor:
-    """
-    Preprocesamiento simple tipo MNIST:
-    - gris
-    - invertir si el fondo es claro
-    - detectar tinta (pixeles claros)
-    - recortar al dígito
-    - escalar a ~20x20 manteniendo aspecto
-    - centrar en 28x28
-    - tensor [1,1,28,28] en [0,1]
-    """
-    img = pil_img.convert("L")
-
-    # invertir si el fondo es claro
-    if np.mean(np.array(img)) > 127:
-        img = ImageOps.invert(img)
-
-    arr = np.array(img)
-
-    # "tinta": pixeles claros (trazo blanco)
-    mask = arr > 30
-
-    # si no hay tinta suficiente, devolver imagen negra
-    if mask.sum() < 50:
-        arr28 = np.zeros((28, 28), dtype=np.float32)
-        return torch.from_numpy(arr28).unsqueeze(0).unsqueeze(0)
-
-    # bounding box
-    ys, xs = np.where(mask)
-    y0, y1 = ys.min(), ys.max() + 1
-    x0, x1 = xs.min(), xs.max() + 1
-    cropped = img.crop((x0, y0, x1, y1))
-
-    # escalar manteniendo aspecto a ~20x20
-    w, h = cropped.size
-    if w > h:
-        new_w = 20
-        new_h = max(1, int(round(h * (20 / w))))
-    else:
-        new_h = 20
-        new_w = max(1, int(round(w * (20 / h))))
-    resized = cropped.resize((new_w, new_h))
-
-    # centrar en 28x28
-    canvas28 = Image.new("L", (28, 28), color=0)
-    left = (28 - new_w) // 2
-    top = (28 - new_h) // 2
-    canvas28.paste(resized, (left, top))
-
-    arr28 = np.array(canvas28).astype(np.float32) / 255.0
-    return torch.from_numpy(arr28).unsqueeze(0).unsqueeze(0)
-
+    pil_img = pil_img.convert("L").resize((28, 28))
+    arr = np.array(pil_img).astype(np.float32) / 255.0
+    return torch.from_numpy(arr).unsqueeze(0).unsqueeze(0)
 
 
 @st.cache_resource
@@ -203,24 +155,21 @@ with left:
 with right:
     st.subheader("2) Predicción")
 
-    if pil_img is None:
-        st.info("Primero dibuja o sube una imagen.")
-    else:
-        model, device = load_trained_model(str(WEIGHTS), out_1=16, out_2=32)
+    model, device = load_trained_model(str(WEIGHTS), out_1=16, out_2=32)
 
-        x = preprocess_pil(pil_img)  # [1,1,28,28]
-        st.write("Debug x: mean=", float(x.mean()), "max=", float(x.max()), "sum=", float(x.sum()))
+    x = preprocess_pil(pil_img)  # [1,1,28,28]
+    st.write("Debug x: mean=", float(x.mean()), "max=", float(x.max()), "sum=", float(x.sum()))
 
-        pred, probs = predict(model, x, device)
+    pred, probs = predict(model, x, device)
 
-        st.markdown(f"## ✅ Predicción: **{pred}**")
+    st.markdown(f"## ✅ Predicción: **{pred}**")
 
-        top3 = np.argsort(probs)[::-1][:3]
-        st.write("Top-3:", ", ".join([f"{i} ({probs[i]:.2%})" for i in top3]))
+    top3 = np.argsort(probs)[::-1][:3]
+    st.write("Top-3:", ", ".join([f"{i} ({probs[i]:.2%})" for i in top3]))
 
-        st.write("Input final 28×28 (lo que ve el modelo):")
-        x_img = (x.squeeze(0).squeeze(0).numpy() * 255).astype(np.uint8)
-        st.image(x_img, clamp=True, width=220)
+    st.write("Input final 28×28 (lo que ve el modelo):")
+    x_img = (x.squeeze(0).squeeze(0).numpy() * 255).astype(np.uint8)
+    st.image(x_img, clamp=True, width=220)
 
-        st.write("Probabilidades por clase:")
-        st.bar_chart(probs)
+    st.write("Probabilidades por clase:")
+    st.bar_chart(probs)
