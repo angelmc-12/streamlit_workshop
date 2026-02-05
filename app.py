@@ -208,9 +208,6 @@ with right:
         # Preprocesamos
         x = preprocess_pil(pil_img)  # [1,1,28,28]
 
-        # Debug del tensor (útil si algo se ve raro)
-        st.write("Debug x: mean=", float(x.mean()), "max=", float(x.max()), "sum=", float(x.sum()))
-
         # Inferencia
         pred, probs = predict(model, x, device)
 
