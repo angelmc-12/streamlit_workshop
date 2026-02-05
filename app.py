@@ -149,7 +149,7 @@ with left:
         else:
             canvas = st_canvas(
                 fill_color="black",
-                stroke_width=18,
+                stroke_width=8,
                 stroke_color="white",
                 background_color="black",
                 height=280,
