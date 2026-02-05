@@ -44,14 +44,58 @@ def _to_28x28_grayscale(img: Image.Image) -> Image.Image:
     img = img.resize((28, 28))           # simple resize (ok for demo)
     return img
 
-def preprocess_pil(img: Image.Image) -> torch.Tensor:
+def preprocess_pil(pil_img: Image.Image) -> torch.Tensor:
     """
-    Converts PIL to torch tensor shaped [1,1,28,28] with values in [0,1].
+    Preprocesamiento simple tipo MNIST:
+    - gris
+    - invertir si el fondo es claro
+    - detectar tinta (pixeles claros)
+    - recortar al dígito
+    - escalar a ~20x20 manteniendo aspecto
+    - centrar en 28x28
+    - tensor [1,1,28,28] en [0,1]
     """
-    img = _to_28x28_grayscale(img)
-    arr = np.array(img).astype(np.float32) / 255.0
-    x = torch.tensor(arr).unsqueeze(0).unsqueeze(0)  # [1,1,28,28]
-    return x
+    img = pil_img.convert("L")
+
+    # invertir si el fondo es claro
+    if np.mean(np.array(img)) > 127:
+        img = ImageOps.invert(img)
+
+    arr = np.array(img)
+
+    # "tinta": pixeles claros (trazo blanco)
+    mask = arr > 30
+
+    # si no hay tinta suficiente, devolver imagen negra
+    if mask.sum() < 50:
+        arr28 = np.zeros((28, 28), dtype=np.float32)
+        return torch.from_numpy(arr28).unsqueeze(0).unsqueeze(0)
+
+    # bounding box
+    ys, xs = np.where(mask)
+    y0, y1 = ys.min(), ys.max() + 1
+    x0, x1 = xs.min(), xs.max() + 1
+    cropped = img.crop((x0, y0, x1, y1))
+
+    # escalar manteniendo aspecto a ~20x20
+    w, h = cropped.size
+    if w > h:
+        new_w = 20
+        new_h = max(1, int(round(h * (20 / w))))
+    else:
+        new_h = 20
+        new_w = max(1, int(round(w * (20 / h))))
+    resized = cropped.resize((new_w, new_h))
+
+    # centrar en 28x28
+    canvas28 = Image.new("L", (28, 28), color=0)
+    left = (28 - new_w) // 2
+    top = (28 - new_h) // 2
+    canvas28.paste(resized, (left, top))
+
+    arr28 = np.array(canvas28).astype(np.float32) / 255.0
+    return torch.from_numpy(arr28).unsqueeze(0).unsqueeze(0)
+
 
 
 @st.cache_resource
