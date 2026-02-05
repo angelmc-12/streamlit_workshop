@@ -127,8 +127,19 @@ with left:
                     is_blank = False
             
             if canvas.image_data is not None and not is_blank:
+                # img_arr = canvas.image_data.astype(np.uint8)
+                # pil_img = Image.fromarray(img_arr).convert("L")
+
                 img_arr = canvas.image_data.astype(np.uint8)
-                pil_img = Image.fromarray(img_arr).convert("L")
+                
+                rgba = Image.fromarray(img_arr, mode="RGBA")
+                
+                # fuerza fondo negro sólido (esto elimina diferencias entre local vs cloud)
+                bg = Image.new("RGBA", rgba.size, (0, 0, 0, 255))
+                rgba = Image.alpha_composite(bg, rgba)
+                
+                pil_img = rgba.convert("L")
+            
             else:
                 pil_img = None
                 st.info("👆 Dibuja un número en el canvas para predecir.")
